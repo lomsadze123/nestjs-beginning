@@ -1,4 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { CreateBookDto } from './dto/create-book.dto';
+import { UpdateBookDto } from './dto/update-book.dto';
 
 @Injectable()
 export class BooksService {
@@ -39,8 +41,11 @@ export class BooksService {
     genre?: 'FICTION' | 'NON_FICTION' | 'FANTASY' | 'CLASSIC' | 'DYSTOPIAN',
   ) {
     if (genre) {
-      console.log(this.books);
-      return this.books.filter((book) => book.genre === genre);
+      const genres = this.books.filter((book) => book.genre === genre);
+      if (genres.length === 0)
+        throw new NotFoundException(`No books found for genre ${genre}`);
+      return genres;
+    } else {
     }
     return this.books;
   }
@@ -48,36 +53,27 @@ export class BooksService {
   findOne(id: number) {
     const book = this.books.find((book) => book.id === id);
 
+    if (!book) throw new NotFoundException(`Book with ID ${id} not found`);
+
     return book;
   }
 
-  create(book: {
-    name: string;
-    author: string;
-    genre: 'FICTION' | 'NON_FICTION' | 'FANTASY' | 'CLASSIC' | 'DYSTOPIAN';
-  }) {
+  create(createBookDto: CreateBookDto) {
     const bookByHighestId = [...this.books].sort((a, b) => b.id - a.id);
     const newBook = {
       id: bookByHighestId[0].id + 1,
-      ...book,
+      ...createBookDto,
     };
     this.books.push(newBook);
     return newBook;
   }
 
-  update(
-    id: number,
-    updateBook: {
-      name: string;
-      author: string;
-      genre: 'FICTION' | 'NON_FICTION' | 'FANTASY' | 'CLASSIC' | 'DYSTOPIAN';
-    },
-  ) {
+  update(id: number, updateBookDto: UpdateBookDto) {
     this.books = this.books.map((book) => {
       if (book.id === id) {
         return {
           ...book,
-          ...updateBook,
+          ...updateBookDto,
         };
       }
       return book;

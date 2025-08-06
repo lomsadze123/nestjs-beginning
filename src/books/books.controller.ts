@@ -7,8 +7,12 @@ import {
   Patch,
   Post,
   Query,
+  ParseIntPipe,
+  ValidationPipe,
 } from '@nestjs/common';
 import { BooksService } from './books.service';
+import { CreateBookDto } from './dto/create-book.dto';
+import { UpdateBookDto } from './dto/update-book.dto';
 
 @Controller('books')
 export class BooksController {
@@ -23,37 +27,29 @@ export class BooksController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.booksService.findOne(+id);
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.booksService.findOne(id);
   }
 
   @Post()
   create(
-    @Body()
-    book: {
-      name: string;
-      author: string;
-      genre: 'FICTION' | 'NON_FICTION' | 'FANTASY' | 'CLASSIC' | 'DYSTOPIAN';
-    },
+    @Body(ValidationPipe)
+    createBookDto: CreateBookDto,
   ) {
-    return this.booksService.create(book);
+    return this.booksService.create(createBookDto);
   }
 
   @Patch(':id')
   update(
-    @Param('id') id: string,
-    @Body()
-    updateBook: {
-      name: string;
-      author: string;
-      genre: 'FICTION' | 'NON_FICTION' | 'FANTASY' | 'CLASSIC' | 'DYSTOPIAN';
-    },
+    @Param('id', ParseIntPipe) id: number,
+    @Body(ValidationPipe)
+    updateBookDto: UpdateBookDto,
   ) {
-    return this.booksService.update(+id, updateBook);
+    return this.booksService.update(id, updateBookDto);
   }
 
   @Delete(':id')
-  delete(@Param('id') id: string) {
-    return this.booksService.delete(+id);
+  delete(@Param('id', ParseIntPipe) id: number) {
+    return this.booksService.delete(id);
   }
 }
