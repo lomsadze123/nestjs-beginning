@@ -8,11 +8,9 @@ import {
   Post,
   Query,
   ParseIntPipe,
-  ValidationPipe,
 } from '@nestjs/common';
 import { BooksService } from './books.service';
-import { CreateBookDto } from './dto/create-book.dto';
-import { UpdateBookDto } from './dto/update-book.dto';
+import { Prisma } from '@prisma/client';
 
 @Controller('books')
 export class BooksController {
@@ -21,7 +19,7 @@ export class BooksController {
   @Get()
   findAll(
     @Query('genre')
-    genre?: 'FICTION' | 'NON_FICTION' | 'FANTASY' | 'CLASSIC' | 'DYSTOPIAN',
+    genre?: Prisma.EnumGenreFilter,
   ) {
     return this.booksService.findAll(genre);
   }
@@ -33,8 +31,8 @@ export class BooksController {
 
   @Post()
   create(
-    @Body(ValidationPipe)
-    createBookDto: CreateBookDto,
+    @Body()
+    createBookDto: Prisma.BookCreateInput,
   ) {
     return this.booksService.create(createBookDto);
   }
@@ -42,14 +40,14 @@ export class BooksController {
   @Patch(':id')
   update(
     @Param('id', ParseIntPipe) id: number,
-    @Body(ValidationPipe)
-    updateBookDto: UpdateBookDto,
+    @Body()
+    updateBookDto: Prisma.BookUpdateInput,
   ) {
     return this.booksService.update(id, updateBookDto);
   }
 
   @Delete(':id')
-  delete(@Param('id', ParseIntPipe) id: number) {
-    return this.booksService.delete(id);
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.booksService.remove(id);
   }
 }
