@@ -11,11 +11,14 @@ import {
 } from '@nestjs/common';
 import { BooksService } from './books.service';
 import { Prisma } from '@prisma/client';
+import { Throttle, SkipThrottle } from '@nestjs/throttler';
 
+@SkipThrottle()
 @Controller('books')
 export class BooksController {
   constructor(private readonly booksService: BooksService) {}
 
+  @SkipThrottle({ default: false })
   @Get()
   findAll(
     @Query('genre')
@@ -24,6 +27,7 @@ export class BooksController {
     return this.booksService.findAll(genre);
   }
 
+  @Throttle({ short: { ttl: 1000, limit: 1 } })
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.booksService.findOne(id);
