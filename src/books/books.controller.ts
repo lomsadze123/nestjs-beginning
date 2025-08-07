@@ -28,7 +28,7 @@ export class BooksController {
     @Query('genre')
     genre?: Prisma.EnumGenreFilter,
   ) {
-    this.logger.log(`Request from IP: ${ip}`);
+    this.logger.log(`Request from IP: ${ip}`, BooksController.name);
     return this.booksService.findAll(genre);
   }
 
